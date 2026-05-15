@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Time Tracker">
+<title>Time Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose:      #DECFCD;
+  --sage:      #F3F5EE;
+  --sage-mid:  #E5E9DC;
+  --sage-dk:   #D5DAC8;
+  --teal:      #1D4147;
+  --black:     #1A1B1F;
+  --offwhite:  #F2F4EE;
+  --body:      #333333;
+  --muted:     #6b7a6c;
+  --radius:    5px;
+  --safe-top:  env(safe-area-inset-top, 0px);
+  --safe-bot:  env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;min-height:100dvh;overscroll-behavior:none}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;position:relative}
+
+/* ── Oswald utility ── */
+.ow{font-family:'Oswald',sans-serif;text-transform:uppercase}
+
+/* ── HEADER ── */
+.header{background:var(--teal);padding:calc(var(--safe-top) + 14px) 16px 14px;position:sticky;top:0;z-index:200;display:flex;align-items:center;gap:10px}
+.hdr-back{background:rgba(242,244,238,.15);border:1px solid rgba(242,244,238,.3);border-radius:var(--radius);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--offwhite);font-family:'Oswald',sans-serif;font-size:20px;flex-shrink:0}
+.hdr-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:15px;font-weight:400;letter-spacing:2.5px;color:var(--offwhite);flex:1}
+.hdr-btn{background:var(--black);color:var(--offwhite);border:none;border-radius:var(--radius);padding:7px 13px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.hdr-btn svg{width:13px;height:13px}
+.hdr-btn.ghost{background:rgba(242,244,238,.12);border:1px solid rgba(242,244,238,.35)}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ══════════════ HOME SCREEN ══════════════ */
+
+/* Log strip at top */
+.log-strip{background:var(--rose);border-bottom:1px solid rgba(29,65,71,.12);padding:16px}
+.log-strip-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2.5px;color:var(--teal);opacity:.65;margin-bottom:12px}
+
+/* Customer selector */
+.customer-row{display:flex;gap:8px;margin-bottom:12px}
+.select-wrap{flex:1;position:relative}
+.select-wrap select,.form-input,.form-textarea{width:100%;background:rgba(255,255,255,.55);border:1px solid rgba(29,65,71,.4);border-radius:var(--radius);padding:10px 14px;font-size:14px;color:var(--teal);font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;outline:none;-webkit-appearance:none;appearance:none}
+.select-wrap::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--teal);pointer-events:none;font-size:12px}
+.select-wrap select:focus,.form-input:focus,.form-textarea:focus{background:rgba(255,255,255,.85);box-shadow:0 0 0 3px rgba(29,65,71,.12)}
+
+/* Duration row */
+.duration-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.dur-input{width:72px;text-align:center;font-size:20px !important;letter-spacing:1px;padding:8px 6px !important;font-family:'Oswald',sans-serif !important;text-transform:uppercase}
+.dur-sep{font-family:'Oswald',sans-serif;font-size:16px;color:var(--teal);opacity:.5;flex-shrink:0}
+.dur-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);opacity:.6;margin-top:3px;text-align:center}
+.dur-group{display:flex;flex-direction:column;align-items:center;gap:2px}
+
+/* Voice + desc row */
+.desc-row{display:flex;gap:8px;margin-bottom:14px}
+.desc-row .form-input{flex:1;font-family:'Merriweather',serif;text-transform:none;letter-spacing:0;font-size:13px;color:var(--body)}
+.voice-btn{width:44px;height:44px;flex-shrink:0;background:var(--teal);border:none;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--offwhite);font-size:20px;transition:background .15s}
+.voice-btn.listening{background:#8b2020;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.voice-hint{font-family:'Merriweather',serif;font-size:11px;color:var(--teal);font-style:italic;text-align:center;margin-bottom:10px;min-height:16px;opacity:.7}
+
+/* Log button */
+.log-btn{width:100%;background:var(--teal);color:var(--offwhite);border:none;border-radius:var(--radius);padding:13px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer}
+.log-btn:active{opacity:.8}
+
+/* Search */
+.search-row{padding:12px 16px 4px;position:relative}
+.search-input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(29,65,71,.25);border-radius:var(--radius);padding:9px 14px 9px 36px;font-family:'Oswald',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);outline:none}
+.search-input::placeholder{color:var(--muted);opacity:.7}
+.search-input:focus{background:#fff;box-shadow:0 0 0 3px rgba(29,65,71,.1)}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);pointer-events:none}
+
+/* Section heading */
+.section-hdr{padding:14px 16px 8px;font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2.5px;color:var(--muted)}
+
+/* Project list */
+.projects-list{padding:0 16px calc(var(--safe-bot) + 76px);display:flex;flex-direction:column;gap:10px}
+
+/* Project card */
+.project-card{background:#fff;border-radius:var(--radius);border:1px solid rgba(29,65,71,.18);padding:16px;cursor:pointer}
+.project-card:active{opacity:.85}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.pc-customer{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2px;color:var(--teal);opacity:.6;margin-bottom:3px}
+.pc-name{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:17px;font-weight:400;color:var(--teal)}
+.pc-log{background:var(--teal);color:var(--offwhite);border:none;border-radius:var(--radius);padding:5px 12px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;flex-shrink:0;margin-left:8px}
+.pc-meta{display:flex;gap:14px;align-items:center}
+.pc-stat{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:12px;letter-spacing:.5px;color:var(--muted)}
+.pc-stat strong{color:var(--black);font-weight:500}
+.pc-rate{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:.5px;color:var(--muted);margin-left:auto;flex-shrink:0}
+.pc-rate span{color:var(--teal);font-weight:500}
+
+/* Bottom floater */
+.floater{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--teal);display:grid;grid-template-columns:1fr 1fr auto;z-index:100}
+.floater-stat{padding:14px 20px;border-right:1px solid rgba(242,244,238,.15)}
+.floater-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2px;color:var(--offwhite);opacity:.6;margin-bottom:3px}
+.floater-val{font-family:'Oswald',sans-serif;font-size:22px;font-weight:400;color:var(--offwhite)}
+.floater-export{background:rgba(242,244,238,.1);border:none;border-left:1px solid rgba(242,244,238,.15);color:var(--offwhite);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 18px;min-width:64px}
+.floater-export span{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:9px;letter-spacing:1.5px;opacity:.7}
+.floater-export:active{background:rgba(242,244,238,.2)}
+
+/* Empty */
+.empty{text-align:center;padding:50px 32px;color:var(--muted)}
+.empty-icon{font-size:38px;margin-bottom:12px}
+.empty-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:18px;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.empty-text{font-size:13px;line-height:1.7;font-style:italic}
+
+/* ══════════════ FORM SCREENS ══════════════ */
+.form-screen{padding:20px 16px calc(var(--safe-bot) + 80px)}
+.form-group{margin-bottom:18px}
+.form-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2px;color:var(--teal);margin-bottom:8px;display:block}
+.form-optional{text-transform:none;letter-spacing:0;font-family:'Merriweather',serif;font-size:10px;font-style:italic;color:var(--muted);margin-left:4px}
+.form-input{font-family:'Merriweather',serif;text-transform:none;letter-spacing:0;font-size:14px;color:var(--body);padding:12px 14px;background:var(--sage-mid);border:1px solid var(--teal)}
+.form-textarea{width:100%;background:var(--sage-mid);border:1px solid var(--teal);border-radius:var(--radius);padding:12px 14px;font-size:14px;color:var(--body);font-family:'Merriweather',serif;text-transform:none;letter-spacing:0;outline:none;resize:none;min-height:80px;line-height:1.6}
+.form-textarea:focus{background:#fff;box-shadow:0 0 0 3px rgba(29,65,71,.12)}
+.form-hint{font-size:11px;color:var(--muted);margin-top:5px;font-style:italic}
+.btn-primary{width:100%;background:var(--teal);color:var(--offwhite);border:none;border-radius:var(--radius);padding:14px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer}
+.btn-primary:active{opacity:.8}
+.btn-secondary{width:100%;background:transparent;color:var(--teal);border:1px solid rgba(29,65,71,.4);border-radius:var(--radius);padding:13px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;margin-top:10px}
+.time-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.time-big{text-align:center !important;font-size:26px !important;font-family:'Oswald',sans-serif !important;text-transform:uppercase;letter-spacing:1px;padding:10px !important}
+.log-calc{background:var(--teal);color:var(--offwhite);border-radius:var(--radius);padding:11px 16px;margin-bottom:18px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;text-align:center;display:none}
+
+/* ══════════════ DETAIL SCREEN ══════════════ */
+.detail-hero{background:var(--rose);padding:18px 16px 16px;border-bottom:1px solid rgba(29,65,71,.12)}
+.detail-customer{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2px;color:var(--teal);opacity:.6;margin-bottom:3px}
+.detail-project{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:22px;font-weight:400;color:var(--teal);margin-bottom:14px}
+.detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ds{background:rgba(29,65,71,.08);border-radius:var(--radius);padding:9px 10px;text-align:center}
+.ds-val{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:18px;font-weight:400;color:var(--teal)}
+.ds-lbl{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:9px;letter-spacing:1.5px;color:var(--teal);opacity:.55;margin-top:2px}
+.rate-row{background:var(--sage);border-bottom:1px solid rgba(29,65,71,.15);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.rate-row span{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;color:var(--teal)}
+.rate-edit-btn{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:1.5px;color:var(--teal);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* Entries */
+.entries-list{padding:0 16px calc(var(--safe-bot) + 30px)}
+.entries-hdr{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2.5px;color:var(--muted);padding:16px 0 8px}
+.entry-card{background:#fff;border-radius:var(--radius);border:1px solid rgba(29,65,71,.18);padding:14px;margin-bottom:10px}
+.entry-main-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.entry-time{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:20px;font-weight:400;color:var(--teal)}
+.entry-right{display:flex;align-items:center;gap:10px}
+.entry-money{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;font-weight:400;color:var(--teal);opacity:.55}
+.entry-date-inline{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;letter-spacing:1px;color:var(--teal);opacity:.55}
+.entry-edit-btn{width:30px;height:30px;background:var(--sage-mid);border:1px solid rgba(29,65,71,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--teal);flex-shrink:0}
+.entry-desc{font-family:'Merriweather',serif;font-size:12px;color:var(--muted);line-height:1.55;border-top:1px solid rgba(29,65,71,.1);padding-top:8px;margin-top:4px}
+
+/* ══════════════ MODALS ══════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(29,65,71,.45);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--sage);border-top:2px solid var(--teal);border-radius:var(--radius) var(--radius) 0 0;padding:22px 16px calc(var(--safe-bot) + 20px);width:100%;max-width:480px}
+.modal-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;letter-spacing:2.5px;color:var(--teal);margin-bottom:16px}
+.modal-actions{display:flex;gap:10px;margin-top:14px}
+.modal-actions button{flex:1;padding:12px;border-radius:var(--radius);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.modal-save{background:var(--teal);color:var(--offwhite);border:none}
+.modal-cancel{background:transparent;color:var(--teal);border:1px solid rgba(29,65,71,.4)}
+.modal-delete{background:transparent;color:#8b2020;border:1px solid rgba(139,32,32,.3);margin-top:10px;width:100%;padding:11px;border-radius:var(--radius);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+
+/* Customer group label in project list */
+.customer-group-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:2.5px;color:var(--teal);padding:14px 0 6px;border-bottom:1px solid rgba(29,65,71,.15);margin-bottom:8px}
+.customer-group-label:not(:first-child){margin-top:8px}
+
+/* ══════════════ SAFE AREA FLOATER PADDING ══════════════ */
+.with-floater{padding-bottom:calc(var(--safe-bot) + 76px) !important}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ════════════════ HOME ════════════════ -->
+<div id="screen-list" class="screen active">
+  <div class="header">
+    <div class="hdr-title">Time Tracker</div>
+    <button class="hdr-btn" onclick="showScreen('screen-new-project')">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 4a1 1 0 011 1v4h4a1 1 0 010 2h-4v4a1 1 0 01-2 0v-4H5a1 1 0 010-2h4V5a1 1 0 011-1z"/></svg>
+      New project
+    </button>
+  </div>
+
+  <!-- Quick log strip -->
+  <div class="log-strip">
+    <div class="log-strip-title">Log time</div>
+
+    <!-- Customer select -->
+    <div class="customer-row">
+      <div class="select-wrap" style="flex:1">
+        <select id="ql-customer">
+          <option value="">Select customer / project</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <div style="display:flex;gap:16px;margin-bottom:12px;align-items:flex-end">
+      <div class="dur-group">
+        <div class="dur-label">Hours</div>
+        <input id="ql-hours" class="form-input dur-input" type="number" min="0" max="99" value="1" inputmode="numeric" oninput="updateQLPreview()">
+      </div>
+      <div class="dur-sep" style="padding-bottom:10px">:</div>
+      <div class="dur-group">
+        <div class="dur-label">Minutes</div>
+        <input id="ql-minutes" class="form-input dur-input" type="number" min="0" max="59" step="15" value="0" inputmode="numeric" oninput="updateQLPreview()">
+      </div>
+      <div class="dur-group" style="flex:1">
+        <div class="dur-label">Date</div>
+        <input id="ql-date" class="form-input" style="font-family:'Oswald',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;width:100%" type="date">
+      </div>
+    </div>
+
+    <!-- Description + voice -->
+    <div class="desc-row">
+      <input id="ql-desc" class="form-input" type="text" placeholder="Description (optional)" style="flex:1;font-family:'Merriweather',serif;text-transform:none;letter-spacing:0;font-size:13px;color:var(--body);padding:10px 12px">
+      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()" title="Log by voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+      </button>
+    </div>
+    <div class="voice-hint" id="voice-hint"></div>
+
+    <button class="log-btn" onclick="quickLog()">Log time</button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-row">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" id="search-input" placeholder="Search projects..." oninput="renderList()" autocorrect="off" autocapitalize="off">
+  </div>
+
+  <div id="projects-heading" class="section-hdr"></div>
+  <div id="projects-list" class="projects-list with-floater"></div>
+
+  <!-- Bottom floater -->
+  <div class="floater" id="floater">
+    <div class="floater-stat">
+      <div class="floater-label">Total hours</div>
+      <div class="floater-val" id="floater-hours">0</div>
+    </div>
+    <div class="floater-stat">
+      <div class="floater-label">Total earnings</div>
+      <div class="floater-val" id="floater-euros">€0</div>
+    </div>
+    <button class="floater-export" onclick="exportCSV()" title="Export CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>
+  </div>
+</div>
+
+<!-- ════════════════ NEW PROJECT ════════════════ -->
+<div id="screen-new-project" class="screen">
+  <div class="header">
+    <button class="hdr-back" onclick="showScreen('screen-list')">‹</button>
+    <div class="hdr-title">New project</div>
+  </div>
+  <div class="form-screen">
+    <div class="form-group">
+      <label class="form-label">Customer name</label>
+      <input id="np-customer" class="form-input" type="text" placeholder="Type to search or add new…" autocomplete="off" autocapitalize="words" list="customer-suggestions" oninput="updateCustomerSuggestions()">
+      <datalist id="customer-suggestions"></datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project name</label>
+      <input id="np-project" class="form-input" type="text" placeholder="e.g. Website redesign" autocapitalize="words">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hourly rate (€) <span class="form-optional">— optional</span></label>
+      <input id="np-rate" class="form-input" type="number" placeholder="0.00" min="0" step="0.5" inputmode="decimal">
+      <div class="form-hint">You can set or update this later.</div>
+    </div>
+    <button class="btn-primary" onclick="createProject()">Create project</button>
+    <button class="btn-secondary" onclick="showScreen('screen-list')">Cancel</button>
+  </div>
+</div>
+
+<!-- ════════════════ PROJECT DETAIL ════════════════ -->
+<div id="screen-detail" class="screen">
+  <div class="header">
+    <button class="hdr-back" onclick="showScreen('screen-list')">‹</button>
+    <div class="hdr-title" id="detail-hdr-title">Project</div>
+    <button class="hdr-btn ghost" onclick="openDetailLogModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 4a1 1 0 011 1v4h4a1 1 0 010 2h-4v4a1 1 0 01-2 0v-4H5a1 1 0 010-2h4V5a1 1 0 011-1z"/></svg>
+      Log time
+    </button>
+  </div>
+  <div id="detail-hero" class="detail-hero"></div>
+  <div id="rate-row" class="rate-row"></div>
+  <div class="entries-list">
+    <div class="entries-hdr">Time entries</div>
+    <div id="entries-list"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ════ RATE MODAL ════ -->
+<div id="rate-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Set hourly rate</div>
+    <div class="form-group">
+      <label class="form-label">Hourly rate (€)</label>
+      <input id="modal-rate" class="form-input" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('rate-modal')">Cancel</button>
+      <button class="modal-save" onclick="saveRate()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ LOG TIME MODAL (from detail) ════ -->
+<div id="log-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Log time</div>
+    <div class="form-group">
+      <label class="form-label">Duration</label>
+      <div class="time-inputs">
+        <div>
+          <label class="form-label" style="text-align:center">Hours</label>
+          <input id="lm-hours" class="form-input time-big" type="number" min="0" max="99" value="1" inputmode="numeric">
+        </div>
+        <div>
+          <label class="form-label" style="text-align:center">Minutes</label>
+          <input id="lm-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" value="0" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input id="lm-date" class="form-input" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description <span class="form-optional">— optional</span></label>
+      <textarea id="lm-desc" class="form-textarea" placeholder="What did you work on?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('log-modal')">Cancel</button>
+      <button class="modal-save" onclick="saveLogModal()">Save entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ EDIT ENTRY MODAL ════ -->
+<div id="edit-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Edit entry</div>
+    <div class="form-group">
+      <label class="form-label">Duration</label>
+      <div class="time-inputs">
+        <div>
+          <label class="form-label" style="text-align:center">Hours</label>
+          <input id="em-hours" class="form-input time-big" type="number" min="0" max="99" inputmode="numeric">
+        </div>
+        <div>
+          <label class="form-label" style="text-align:center">Minutes</label>
+          <input id="em-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input id="em-date" class="form-input" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description <span class="form-optional">— optional</span></label>
+      <textarea id="em-desc" class="form-textarea" placeholder="What did you work on?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="modal-save" onclick="saveEditModal()">Save changes</button>
+    </div>
+    <button class="modal-delete" onclick="deleteCurrentEntry()">Delete this entry</button>
+  </div>
+</div>
+
+<script>
+// ─── Storage ──────────────────────────────────────────────────
+const KEY = 'timetracker_v3';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{projects:[]}}catch{return{projects:[]}}}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
+
+// ─── State ────────────────────────────────────────────────────
+let currentProjectId = null;
+let editEntryId = null;
+
+// ─── Navigation ───────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-list'){renderList();populateCustomerSelect()}
+  if(id==='screen-detail')renderDetail();
+  if(id==='screen-new-project')updateCustomerSuggestions();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+// ─── HOME: Customer select ────────────────────────────────────
+function populateCustomerSelect(){
+  const sel=document.getElementById('ql-customer');
+  const {projects}=load();
+  const cur=sel.value;
+  // Sort projects alphabetically by customer then project name
+  const sorted=[...projects].sort((a,b)=>{
+    const c=a.customer.toLowerCase().localeCompare(b.customer.toLowerCase());
+    return c!==0?c:a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+  sel.innerHTML='<option value="">Select project…</option>';
+  sorted.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.id;
+    opt.textContent=`${p.customer.toUpperCase()} — ${p.name.toUpperCase()}`;
+    sel.appendChild(opt);
+  });
+  if(cur)sel.value=cur;
+  sel.removeEventListener('change',updateQLPreview);
+  sel.addEventListener('change',updateQLPreview);
+  document.getElementById('ql-date').value=new Date().toISOString().split('T')[0];
+}
+
+function updateQLPreview(){
+  // preview bar removed — nothing to update
+}
+
+function quickLog(){
+  const id=document.getElementById('ql-customer').value;
+  if(!id){alert('Please select a project.');return}
+  const h=parseInt(document.getElementById('ql-hours').value)||0;
+  const m=parseInt(document.getElementById('ql-minutes').value)||0;
+  const total=h*60+m;
+  if(total<=0){alert('Please enter a duration greater than 0.');return}
+  const date=document.getElementById('ql-date').value;
+  if(!date){alert('Please select a date.');return}
+  const desc=document.getElementById('ql-desc').value.trim();
+  const data=load();
+  const p=data.projects.find(x=>x.id===id);
+  if(!p)return;
+  p.entries.push({id:Date.now().toString(),minutes:total,date,description:desc,createdAt:new Date().toISOString()});
+  save(data);
+  document.getElementById('ql-hours').value=1;
+  document.getElementById('ql-minutes').value=0;
+  document.getElementById('ql-desc').value=0;
+  document.getElementById('ql-desc').value='';
+  document.getElementById('ql-preview').style.display='none';
+  document.getElementById('voice-hint').textContent='';
+  renderList();
+  // brief flash
+  const btn=document.querySelector('.log-btn');
+  btn.textContent='✓ LOGGED';
+  btn.style.background='#2d7a4f';
+  setTimeout(()=>{btn.textContent='LOG TIME';btn.style.background=''},1400);
+}
+
+// ─── HOME: Render ─────────────────────────────────────────────
+function renderList(){
+  const {projects}=load();
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const filtered=q?projects.filter(p=>
+    p.name.toLowerCase().includes(q)||p.customer.toLowerCase().includes(q)):projects;
+
+  const totalH=projects.reduce((s,p)=>s+totalHrs(p),0);
+  const totalE=projects.reduce((s,p)=>s+totalEur(p),0);
+  document.getElementById('floater-hours').textContent=fmtHours(totalH);
+  document.getElementById('floater-euros').textContent=fmtEuros(totalE);
+
+  const hdr=document.getElementById('projects-heading');
+  const list=document.getElementById('projects-list');
+
+  if(!projects.length){
+    hdr.textContent='';
+    list.innerHTML=`<div class="empty"><div class="empty-icon">🗂</div><div class="empty-title">No projects yet</div><div class="empty-text">Tap "New project" to start tracking your time.</div></div>`;
+    return;
+  }
+
+  hdr.textContent=filtered.length===projects.length?`${projects.length} project${projects.length!==1?'s':''}`:`${filtered.length} of ${projects.length} projects`;
+
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty" style="padding:40px 0"><div class="empty-icon">🔍</div><div class="empty-title">No match</div><div class="empty-text">Try a different search term.</div></div>`;
+    return;
+  }
+
+  // Group by customer (case-insensitive), preserve insertion order of first project per customer
+  const customerOrder=[];
+  const grouped={};
+  filtered.forEach(p=>{
+    const key=p.customer.trim().toLowerCase();
+    if(!grouped[key]){grouped[key]=[];customerOrder.push(key)}
+    grouped[key].push(p);
+  });
+
+  let html='';
+  customerOrder.forEach(key=>{
+    const group=grouped[key];
+    const customerName=group[0].customer;
+    html+=`<div class="customer-group-label">${esc(customerName.toUpperCase())}</div>`;
+    group.forEach(p=>{
+      const hrs=totalHrs(p),euros=totalEur(p);
+      html+=`<div class="project-card" onclick="openProject('${p.id}')">
+        <div class="pc-top">
+          <div class="pc-name">${esc(p.name)}</div>
+          <button class="pc-log" onclick="event.stopPropagation();quickLogProject('${p.id}')">Log time</button>
+        </div>
+        <div class="pc-meta">
+          <div class="pc-stat"><strong>${fmtHours(hrs)}</strong> hrs</div>
+          ${euros>0?`<div class="pc-stat"><strong>${fmtEuros(euros)}</strong></div>`:''}
+          <div class="pc-rate">${p.rate?`<span>${fmtRate(p.rate)}</span>/h`:'No rate'}</div>
+        </div>
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+
+// ─── Quick-select project and scroll to log strip ─────────────
+function quickLogProject(id){
+  const sel=document.getElementById('ql-customer');
+  sel.value=id;
+  updateQLPreview();
+  document.querySelector('.log-strip').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── Create project ───────────────────────────────────────────
+function createProject(){
+  const customer=document.getElementById('np-customer').value.trim();
+  const name=document.getElementById('np-project').value.trim();
+  const rate=parseFloat(document.getElementById('np-rate').value)||0;
+  if(!customer){alert('Please enter a customer name.');return}
+  if(!name){alert('Please enter a project name.');return}
+  const data=load();
+  data.projects.unshift({id:Date.now().toString(),customer,name,rate,entries:[],createdAt:new Date().toISOString()});
+  save(data);
+  ['np-customer','np-project','np-rate'].forEach(id=>document.getElementById(id).value='');
+  showScreen('screen-list');
+}
+
+// ─── Detail ───────────────────────────────────────────────────
+function openProject(id){currentProjectId=id;showScreen('screen-detail')}
+function getProject(){return load().projects.find(p=>p.id===currentProjectId)}
+
+function renderDetail(){
+  const p=getProject();
+  if(!p){showScreen('screen-list');return}
+  document.getElementById('detail-hdr-title').textContent=p.name;
+  const hrs=totalHrs(p),euros=totalEur(p),entries=p.entries||[];
+  document.getElementById('detail-hero').innerHTML=`
+    <div class="detail-customer">${esc(p.customer)}</div>
+    <div class="detail-project">${esc(p.name)}</div>
+    <div class="detail-stats">
+      <div class="ds"><div class="ds-val">${fmtHours(hrs)}</div><div class="ds-lbl">Hours</div></div>
+      <div class="ds"><div class="ds-val">${fmtEuros(euros)}</div><div class="ds-lbl">Earned</div></div>
+      <div class="ds"><div class="ds-val">${entries.length}</div><div class="ds-lbl">Entries</div></div>
+    </div>`;
+  document.getElementById('rate-row').innerHTML=`
+    <span>${p.rate?`Rate: ${fmtRate(p.rate)}/h`:'No hourly rate set'}</span>
+    <button class="rate-edit-btn" onclick="openRateModal()">Edit rate</button>`;
+  const sorted=[...entries].sort((a,b)=>b.date.localeCompare(a.date));
+  const listEl=document.getElementById('entries-list');
+  if(!sorted.length){
+    listEl.innerHTML=`<div class="empty" style="padding:40px 0"><div class="empty-icon">⏱</div><div class="empty-title">No entries yet</div><div class="empty-text">Tap "Log time" to record your first entry.</div></div>`;
+    return;
+  }
+  listEl.innerHTML=sorted.map(e=>{
+    const earn=p.rate?(e.minutes/60)*p.rate:0;
+    return `<div class="entry-card">
+      <div class="entry-main-row">
+        <div class="entry-time">${fmtDur(e.minutes)}</div>
+        <div class="entry-right">
+          <div class="entry-date-inline">${fmtDate(e.date)}</div>
+          ${earn>0?`<div class="entry-money">${fmtEuros(earn)}</div>`:''}
+          <button class="entry-edit-btn" onclick="openEditModal('${e.id}')" title="Edit entry">✎</button>
+        </div>
+      </div>
+      ${e.description?`<div class="entry-desc">${esc(e.description)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ─── Rate modal ───────────────────────────────────────────────
+function openRateModal(){
+  document.getElementById('modal-rate').value=getProject()?.rate||'';
+  openModal('rate-modal');
+  setTimeout(()=>document.getElementById('modal-rate').focus(),100);
+}
+function saveRate(){
+  const rate=parseFloat(document.getElementById('modal-rate').value)||0;
+  const data=load();
+  const p=data.projects.find(x=>x.id===currentProjectId);
+  if(p){p.rate=rate;save(data)}
+  closeModal('rate-modal');renderDetail();
+}
+
+// ─── New project: customer autocomplete ───────────────────────
+function updateCustomerSuggestions(){
+  const {projects}=load();
+  const dl=document.getElementById('customer-suggestions');
+  const unique=[...new Set(projects.map(p=>p.customer.trim()))].sort();
+  dl.innerHTML=unique.map(c=>`<option value="${esc(c)}">`).join('');
+}
+
+// ─── Detail log modal ─────────────────────────────────────────
+function openDetailLogModal(){
+  document.getElementById('lm-hours').value=1;
+  document.getElementById('lm-minutes').value=0;
+  document.getElementById('lm-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('lm-desc').value='';
+  openModal('log-modal');
+}
+function saveLogModal(){
+  const h=parseInt(document.getElementById('lm-hours').value)||0;
+  const m=parseInt(document.getElementById('lm-minutes').value)||0;
+  const total=h*60+m;
+  if(total<=0){alert('Please enter a duration greater than 0.');return}
+  const date=document.getElementById('lm-date').value;
+  if(!date){alert('Please select a date.');return}
+  const data=load();
+  const p=data.projects.find(x=>x.id===currentProjectId);
+  if(!p)return;
+  p.entries.push({id:Date.now().toString(),minutes:total,date,description:document.getElementById('lm-desc').value.trim(),createdAt:new Date().toISOString()});
+  save(data);closeModal('log-modal');renderDetail();
+}
+
+// ─── Edit entry modal ─────────────────────────────────────────
+function openEditModal(entryId){
+  const p=getProject();
+  const e=p?.entries.find(x=>x.id===entryId);
+  if(!e)return;
+  editEntryId=entryId;
+  document.getElementById('em-hours').value=Math.floor(e.minutes/60);
+  document.getElementById('em-minutes').value=e.minutes%60;
+  document.getElementById('em-date').value=e.date;
+  document.getElementById('em-desc').value=e.description||'';
+  openModal('edit-modal');
+}
+function saveEditModal(){
+  const h=parseInt(document.getElementById('em-hours').value)||0;
+  const m=parseInt(document.getElementById('em-minutes').value)||0;
+  const total=h*60+m;
+  if(total<=0){alert('Please enter a duration greater than 0.');return}
+  const date=document.getElementById('em-date').value;
+  if(!date){alert('Please select a date.');return}
+  const data=load();
+  const p=data.projects.find(x=>x.id===currentProjectId);
+  const e=p?.entries.find(x=>x.id===editEntryId);
+  if(!e)return;
+  e.minutes=total;e.date=date;e.description=document.getElementById('em-desc').value.trim();
+  save(data);closeModal('edit-modal');renderDetail();
+}
+function deleteCurrentEntry(){
+  if(!confirm('Delete this time entry?'))return;
+  const data=load();
+  const p=data.projects.find(x=>x.id===currentProjectId);
+  if(!p)return;
+  p.entries=p.entries.filter(e=>e.id!==editEntryId);
+  save(data);closeModal('edit-modal');renderDetail();
+}
+
+// ─── Voice recognition ────────────────────────────────────────
+let recognition=null;
+let isListening=false;
+
+function toggleVoice(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    document.getElementById('voice-hint').textContent='Voice not supported in this browser.';
+    return;
+  }
+  if(isListening){stopVoice();return}
+  recognition=new SpeechRecognition();
+  recognition.lang='en-US';
+  recognition.continuous=false;
+  recognition.interimResults=false;
+  recognition.onstart=()=>{
+    isListening=true;
+    document.getElementById('voice-btn').classList.add('listening');
+    document.getElementById('voice-hint').textContent='Listening... say e.g. "2 hours 30 minutes, client call"';
+  };
+  recognition.onresult=(e)=>{
+    const transcript=e.results[0][0].transcript;
+    parseVoiceInput(transcript);
+  };
+  recognition.onerror=(e)=>{
+    document.getElementById('voice-hint').textContent=`Error: ${e.error}`;
+    stopVoice();
+  };
+  recognition.onend=()=>stopVoice();
+  recognition.start();
+}
+function stopVoice(){
+  isListening=false;
+  document.getElementById('voice-btn').classList.remove('listening');
+  if(recognition){try{recognition.stop()}catch(e){}}
+}
+function parseVoiceInput(text){
+  document.getElementById('voice-hint').textContent=`Heard: "${text}"`;
+  let h=0,m=0;
+  const hourMatch=text.match(/(\d+)\s*(?:hour|hours|hr|hrs)/i);
+  const minMatch=text.match(/(\d+)\s*(?:minute|minutes|min|mins)/i);
+  if(hourMatch)h=parseInt(hourMatch[1]);
+  if(minMatch)m=parseInt(minMatch[1]);
+  // If just a number with no unit, assume hours
+  if(!hourMatch&&!minMatch){const numMatch=text.match(/^(\d+(?:\.\d+)?)/);if(numMatch)h=Math.round(parseFloat(numMatch[1]))}
+  if(h>0||m>0){
+    document.getElementById('ql-hours').value=h;
+    document.getElementById('ql-minutes').value=m;
+    updateQLPreview();
+  }
+  // Everything after time becomes description
+  const descPart=text.replace(/(\d+)\s*(?:hour|hours|hr|hrs)/gi,'').replace(/(\d+)\s*(?:minute|minutes|min|mins)/gi,'').replace(/and/gi,'').trim();
+  if(descPart.length>2)document.getElementById('ql-desc').value=descPart.charAt(0).toUpperCase()+descPart.slice(1);
+}
+
+// ─── CSV Export ───────────────────────────────────────────────
+function exportCSV(){
+  const {projects}=load();
+  if(!projects.length){alert('No data to export yet.');return}
+
+  const rows=[['Customer','Project','Hourly Rate (€)','Date','Hours','Minutes','Duration (decimal h)','Earnings (€)','Description']];
+
+  projects.forEach(p=>{
+    const entries=p.entries||[];
+    if(!entries.length){
+      rows.push([p.customer,p.name,p.rate||'','','','','','','']);
+    } else {
+      [...entries].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+        const decHours=(e.minutes/60).toFixed(2);
+        const earnings=p.rate?((e.minutes/60)*p.rate).toFixed(2):'';
+        rows.push([
+          p.customer, p.name, p.rate||'',
+          e.date,
+          Math.floor(e.minutes/60), e.minutes%60,
+          decHours, earnings,
+          e.description||''
+        ]);
+      });
+    }
+  });
+
+  const csv=rows.map(r=>r.map(v=>{
+    const s=String(v);
+    return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;
+  }).join(',')).join('\r\n');
+
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const today=new Date().toISOString().split('T')[0];
+  a.href=url;
+  a.download=`timetracker-${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+// ─── Helpers ──────────────────────────────────────────────────
+function totalHrs(p){return(p.entries||[]).reduce((s,e)=>s+e.minutes,0)/60}
+function totalEur(p){if(!p.rate)return 0;return(p.entries||[]).reduce((s,e)=>s+(e.minutes/60)*p.rate,0)}
+function fmtHours(h){
+  const hrs=Math.floor(h),mins=Math.round((h-hrs)*60);
+  if(!hrs&&!mins)return'0';
+  if(!mins)return`${hrs}h`;if(!hrs)return`${mins}m`;return`${hrs}h ${mins}m`;
+}
+function fmtDur(m){const h=Math.floor(m/60),r=m%60;if(!h)return`${r}m`;if(!r)return`${h}h`;return`${h}h ${r}m`}
+function fmtEuros(v){if(v===0)return'€0';return'€'+v.toFixed(2).replace(/\.00$/,'')}
+function fmtRate(v){return'€'+Number(v).toFixed(0)}
+function fmtDate(iso){if(!iso)return'';return new Date(iso+'T12:00:00').toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'})}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ─── Close modals on overlay click ────────────────────────────
+['rate-modal','log-modal','edit-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id)});
+});
+
+// ─── Init ─────────────────────────────────────────────────────
+populateCustomerSelect();
+renderList();
+</script>
+</body>
+</html>
