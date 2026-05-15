@@ -215,12 +215,12 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
     <div style="display:flex;gap:16px;margin-bottom:12px;align-items:flex-end">
       <div class="dur-group">
         <div class="dur-label">Hours</div>
-        <input id="ql-hours" class="form-input dur-input" type="number" min="0" max="99" value="1" inputmode="numeric" oninput="updateQLPreview()">
+        <input id="ql-hours" class="form-input dur-input" type="number" min="0" max="99" placeholder="0" inputmode="numeric" onfocus="this.select()" oninput="updateQLPreview()">
       </div>
       <div class="dur-sep" style="padding-bottom:10px">:</div>
       <div class="dur-group">
         <div class="dur-label">Minutes</div>
-        <input id="ql-minutes" class="form-input dur-input" type="number" min="0" max="59" step="15" value="0" inputmode="numeric" oninput="updateQLPreview()">
+        <input id="ql-minutes" class="form-input dur-input" type="number" min="0" max="59" step="15" placeholder="00" inputmode="numeric" onfocus="this.select()" oninput="updateQLPreview()">
       </div>
       <div class="dur-group" style="flex:1">
         <div class="dur-label">Date</div>
@@ -343,11 +343,11 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
       <div class="time-inputs">
         <div>
           <label class="form-label" style="text-align:center">Hours</label>
-          <input id="lm-hours" class="form-input time-big" type="number" min="0" max="99" value="1" inputmode="numeric">
+          <input id="lm-hours" class="form-input time-big" type="number" min="0" max="99" placeholder="0" inputmode="numeric" onfocus="this.select()">
         </div>
         <div>
           <label class="form-label" style="text-align:center">Minutes</label>
-          <input id="lm-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" value="0" inputmode="numeric">
+          <input id="lm-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" placeholder="00" inputmode="numeric" onfocus="this.select()">
         </div>
       </div>
     </div>
@@ -375,11 +375,11 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
       <div class="time-inputs">
         <div>
           <label class="form-label" style="text-align:center">Hours</label>
-          <input id="em-hours" class="form-input time-big" type="number" min="0" max="99" inputmode="numeric">
+          <input id="em-hours" class="form-input time-big" type="number" min="0" max="99" placeholder="0" inputmode="numeric" onfocus="this.select()">
         </div>
         <div>
           <label class="form-label" style="text-align:center">Minutes</label>
-          <input id="em-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" inputmode="numeric">
+          <input id="em-minutes" class="form-input time-big" type="number" min="0" max="59" step="15" placeholder="00" inputmode="numeric" onfocus="this.select()">
         </div>
       </div>
     </div>
@@ -464,11 +464,10 @@ function quickLog(){
   if(!p)return;
   p.entries.push({id:Date.now().toString(),minutes:total,date,description:desc,createdAt:new Date().toISOString()});
   save(data);
-  document.getElementById('ql-hours').value=1;
-  document.getElementById('ql-minutes').value=0;
+  document.getElementById('ql-hours').value='';
+  document.getElementById('ql-minutes').value='';
   document.getElementById('ql-desc').value=0;
   document.getElementById('ql-desc').value='';
-  document.getElementById('ql-preview').style.display='none';
   document.getElementById('voice-hint').textContent='';
   renderList();
   showToast('Entry saved');
@@ -622,8 +621,8 @@ function updateCustomerSuggestions(){
 
 // ─── Detail log modal ─────────────────────────────────────────
 function openDetailLogModal(){
-  document.getElementById('lm-hours').value=1;
-  document.getElementById('lm-minutes').value=0;
+  document.getElementById('lm-hours').value='';
+  document.getElementById('lm-minutes').value='';
   document.getElementById('lm-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('lm-desc').value='';
   openModal('log-modal');
