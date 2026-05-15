@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -337,7 +338,7 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
 <!-- ════ LOG TIME MODAL (from detail) ════ -->
 <div id="log-modal" class="modal-overlay">
   <div class="modal">
-    <div class="modal-title">Log time</div>
+    <div class="modal-title" id="log-modal-title">Log time</div>
     <div class="form-group">
       <label class="form-label">Duration</label>
       <div class="time-inputs">
@@ -537,8 +538,17 @@ function renderList(){
 function quickLogProject(id){
   const sel=document.getElementById('ql-customer');
   sel.value=id;
-  updateQLPreview();
-  document.querySelector('.log-strip').scrollIntoView({behavior:'smooth',block:'start'});
+  currentProjectId=id;
+  logModalOrigin='list';
+  document.getElementById('lm-hours').value='';
+  document.getElementById('lm-minutes').value='';
+  document.getElementById('lm-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('lm-desc').value='';
+  const {projects}=load();
+  const p=projects.find(x=>x.id===id);
+  const title=p?`${p.customer.toUpperCase()} — ${p.name.toUpperCase()}`:'LOG TIME';
+  document.getElementById('log-modal-title').textContent=title;
+  openModal('log-modal');
 }
 
 // ─── Create project ───────────────────────────────────────────
@@ -620,11 +630,14 @@ function updateCustomerSuggestions(){
 }
 
 // ─── Detail log modal ─────────────────────────────────────────
+let logModalOrigin='detail'; // 'detail' or 'list'
 function openDetailLogModal(){
+  logModalOrigin='detail';
   document.getElementById('lm-hours').value='';
   document.getElementById('lm-minutes').value='';
   document.getElementById('lm-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('lm-desc').value='';
+  document.getElementById('log-modal-title').textContent='Log time';
   openModal('log-modal');
 }
 function saveLogModal(){
@@ -638,7 +651,11 @@ function saveLogModal(){
   const p=data.projects.find(x=>x.id===currentProjectId);
   if(!p)return;
   p.entries.push({id:Date.now().toString(),minutes:total,date,description:document.getElementById('lm-desc').value.trim(),createdAt:new Date().toISOString()});
-  save(data);closeModal('log-modal');renderDetail();showToast('Entry saved');
+  save(data);
+  closeModal('log-modal');
+  if(logModalOrigin==='list'){renderList();populateCustomerSelect()}
+  else{renderDetail()}
+  showToast('Entry saved');
 }
 
 // ─── Edit entry modal ─────────────────────────────────────────
