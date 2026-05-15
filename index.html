@@ -151,10 +151,10 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
 .entries-hdr{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:10px;letter-spacing:2.5px;color:var(--muted);padding:16px 0 8px}
 .entry-card{background:#fff;border-radius:var(--radius);border:1px solid rgba(29,65,71,.18);padding:14px;margin-bottom:10px}
 .entry-main-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.entry-time{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:20px;font-weight:400;color:var(--teal)}
+.entry-time{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;font-weight:400;color:var(--teal);opacity:.55}
 .entry-right{display:flex;align-items:center;gap:10px}
 .entry-money{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;font-weight:400;color:var(--teal);opacity:.55}
-.entry-date-inline{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:14px;letter-spacing:1px;color:var(--teal);opacity:.55}
+.entry-date-inline{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:20px;font-weight:400;color:var(--teal);opacity:1}
 .entry-edit-btn{width:30px;height:30px;background:var(--sage-mid);border:1px solid rgba(29,65,71,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--teal);flex-shrink:0}
 .entry-desc{font-family:'Merriweather',serif;font-size:12px;color:var(--muted);line-height:1.55;border-top:1px solid rgba(29,65,71,.1);padding-top:8px;margin-top:4px}
 
@@ -172,6 +172,14 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
 /* Customer group label in project list */
 .customer-group-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:11px;letter-spacing:2.5px;color:var(--teal);padding:14px 0 6px;border-bottom:1px solid rgba(29,65,71,.15);margin-bottom:8px}
 .customer-group-label:not(:first-child){margin-top:8px}
+
+/* ══════════════ SUCCESS TOAST ══════════════ */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);background:var(--teal);color:var(--offwhite);border-radius:16px;padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:500;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast-check{width:48px;height:48px;border-radius:50%;border:2.5px solid var(--offwhite);display:flex;align-items:center;justify-content:center}
+.toast-check svg{stroke-dasharray:30;stroke-dashoffset:30;transition:stroke-dashoffset .3s ease .1s}
+.toast.show .toast-check svg{stroke-dashoffset:0}
+.toast-label{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:13px;letter-spacing:2.5px;color:var(--offwhite);opacity:.85}
 
 /* ══════════════ SAFE AREA FLOATER PADDING ══════════════ */
 .with-floater{padding-bottom:calc(var(--safe-bot) + 76px) !important}
@@ -300,6 +308,16 @@ body{background:var(--sage);color:var(--body);font-family:'Merriweather',serif;m
 </div>
 
 </div><!-- /app -->
+
+<!-- ════ SUCCESS TOAST ════ -->
+<div id="toast" class="toast">
+  <div class="toast-check">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#F2F4EE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 11 9 16 18 6"/>
+    </svg>
+  </div>
+  <div class="toast-label" id="toast-label">Entry saved</div>
+</div>
 
 <!-- ════ RATE MODAL ════ -->
 <div id="rate-modal" class="modal-overlay">
@@ -453,11 +471,7 @@ function quickLog(){
   document.getElementById('ql-preview').style.display='none';
   document.getElementById('voice-hint').textContent='';
   renderList();
-  // brief flash
-  const btn=document.querySelector('.log-btn');
-  btn.textContent='✓ LOGGED';
-  btn.style.background='#2d7a4f';
-  setTimeout(()=>{btn.textContent='LOG TIME';btn.style.background=''},1400);
+  showToast('Entry saved');
 }
 
 // ─── HOME: Render ─────────────────────────────────────────────
@@ -572,9 +586,9 @@ function renderDetail(){
     const earn=p.rate?(e.minutes/60)*p.rate:0;
     return `<div class="entry-card">
       <div class="entry-main-row">
-        <div class="entry-time">${fmtDur(e.minutes)}</div>
+        <div class="entry-date-inline">${fmtDate(e.date)}</div>
         <div class="entry-right">
-          <div class="entry-date-inline">${fmtDate(e.date)}</div>
+          <div class="entry-time">${fmtDur(e.minutes)}</div>
           ${earn>0?`<div class="entry-money">${fmtEuros(earn)}</div>`:''}
           <button class="entry-edit-btn" onclick="openEditModal('${e.id}')" title="Edit entry">✎</button>
         </div>
@@ -625,7 +639,7 @@ function saveLogModal(){
   const p=data.projects.find(x=>x.id===currentProjectId);
   if(!p)return;
   p.entries.push({id:Date.now().toString(),minutes:total,date,description:document.getElementById('lm-desc').value.trim(),createdAt:new Date().toISOString()});
-  save(data);closeModal('log-modal');renderDetail();
+  save(data);closeModal('log-modal');renderDetail();showToast('Entry saved');
 }
 
 // ─── Edit entry modal ─────────────────────────────────────────
@@ -759,6 +773,16 @@ function exportCSV(){
   a.click();
   document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+// ─── Success toast ────────────────────────────────────────────
+let toastTimer=null;
+function showToast(label='Entry saved'){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-label').textContent=label;
+  if(toastTimer){clearTimeout(toastTimer);t.classList.remove('show');void t.offsetWidth}
+  t.classList.add('show');
+  toastTimer=setTimeout(()=>{t.classList.remove('show');toastTimer=null},1600);
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
