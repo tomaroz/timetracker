@@ -1,6 +1,14 @@
 {
   "projects": [
     {
+      "id": "1778924923313",
+      "customer": "Sarfvik Golf",
+      "name": "Kenttäkalusteet",
+      "rate": 100,
+      "entries": [],
+      "createdAt": "2026-05-16T09:48:43.313Z"
+    },
+    {
       "id": "1778838455593",
       "customer": "Testikeissi",
       "name": "Biznettii",
