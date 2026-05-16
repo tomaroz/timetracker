@@ -5,7 +5,15 @@
       "customer": "Sarfvik Golf",
       "name": "Kenttäkalusteet",
       "rate": 100,
-      "entries": [],
+      "entries": [
+        {
+          "id": "1778925057883",
+          "minutes": 60,
+          "date": "2026-05-05",
+          "description": "Brief meeting",
+          "createdAt": "2026-05-16T09:50:57.883Z"
+        }
+      ],
       "createdAt": "2026-05-16T09:48:43.313Z"
     },
     {
