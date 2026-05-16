@@ -1,0 +1,27 @@
+{
+  "projects": [
+    {
+      "id": "1778838455593",
+      "customer": "Testikeissi",
+      "name": "Biznettii",
+      "rate": 36.5,
+      "entries": [
+        {
+          "id": "1778838471141",
+          "minutes": 720,
+          "date": "2026-04-13",
+          "description": "kokeiluu",
+          "createdAt": "2026-05-15T09:47:51.141Z"
+        },
+        {
+          "id": "1778838908964",
+          "minutes": 320,
+          "date": "2026-05-12",
+          "description": "Deletee",
+          "createdAt": "2026-05-15T09:55:08.964Z"
+        }
+      ],
+      "createdAt": "2026-05-15T09:47:35.593Z"
+    }
+  ]
+}
