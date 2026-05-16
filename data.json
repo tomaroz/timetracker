@@ -12,6 +12,13 @@
           "date": "2026-05-05",
           "description": "Brief meeting",
           "createdAt": "2026-05-16T09:50:57.883Z"
+        },
+        {
+          "id": "1778925122286",
+          "minutes": 300,
+          "date": "2026-05-12",
+          "description": "Look n feel design, meeting @ sarfvik",
+          "createdAt": "2026-05-16T09:52:02.286Z"
         }
       ],
       "createdAt": "2026-05-16T09:48:43.313Z"
