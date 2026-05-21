@@ -19,6 +19,13 @@
           "date": "2026-05-12",
           "description": "Look n feel design, meeting @ sarfvik",
           "createdAt": "2026-05-16T09:52:02.286Z"
+        },
+        {
+          "id": "1779385530682",
+          "minutes": 60,
+          "date": "2026-05-21",
+          "description": "Palaveri, temp 9 väylätaulut etc",
+          "createdAt": "2026-05-21T17:45:30.682Z"
         }
       ],
       "createdAt": "2026-05-16T09:48:43.313Z"
