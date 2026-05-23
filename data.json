@@ -33,6 +33,13 @@
           "date": "2026-05-22",
           "description": "Väyläkarttojen fiksaus, tee-palikoiden merkkausratkaisu",
           "createdAt": "2026-05-22T09:31:54.126Z"
+        },
+        {
+          "id": "1779518686256",
+          "minutes": 30,
+          "date": "2026-05-22",
+          "description": "Temp väylätaulut kommentointi ja mallit",
+          "createdAt": "2026-05-23T06:44:46.256Z"
         }
       ],
       "createdAt": "2026-05-16T09:48:43.313Z"
