@@ -40,6 +40,13 @@
           "date": "2026-05-22",
           "description": "Temp väylätaulut kommentointi ja mallit",
           "createdAt": "2026-05-23T06:44:46.256Z"
+        },
+        {
+          "id": "1780424519450",
+          "minutes": 30,
+          "date": "2026-06-02",
+          "description": "Tarjous ja briiffaus laserpaja",
+          "createdAt": "2026-06-02T18:21:59.450Z"
         }
       ],
       "createdAt": "2026-05-16T09:48:43.313Z"
