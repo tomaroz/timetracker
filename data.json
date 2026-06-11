@@ -54,6 +54,13 @@
           "date": "2026-06-03",
           "description": "Yhteydenpitoa ja ohjeita teemarkereista",
           "createdAt": "2026-06-03T07:51:33.137Z"
+        },
+        {
+          "id": "1781158388576",
+          "minutes": 30,
+          "date": "2026-06-11",
+          "description": "Tee markers asennukset",
+          "createdAt": "2026-06-11T06:13:08.576Z"
         }
       ],
       "createdAt": "2026-05-16T09:48:43.313Z"
