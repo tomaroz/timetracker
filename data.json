@@ -1,6 +1,14 @@
 {
   "projects": [
     {
+      "id": "1790662954628",
+      "customer": "LUT Lab",
+      "name": "Digital Design course",
+      "rate": 27,
+      "entries": [],
+      "createdAt": "2026-09-29T06:22:34.628Z"
+    },
+    {
       "id": "1778924923313",
       "customer": "Sarfvik Golf",
       "name": "Kenttäkalusteet",
