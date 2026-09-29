@@ -5,7 +5,15 @@
       "customer": "LUT Lab",
       "name": "Digital Design course",
       "rate": 27,
-      "entries": [],
+      "entries": [
+        {
+          "id": "1790662989222",
+          "minutes": 210,
+          "date": "2026-09-28",
+          "description": "Valmistautumista",
+          "createdAt": "2026-09-29T06:23:09.222Z"
+        }
+      ],
       "createdAt": "2026-09-29T06:22:34.628Z"
     },
     {
