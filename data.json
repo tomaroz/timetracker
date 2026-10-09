@@ -12,6 +12,13 @@
           "date": "2026-09-28",
           "description": "Valmistautumista",
           "createdAt": "2026-09-29T06:23:09.222Z"
+        },
+        {
+          "id": "1791527507844",
+          "minutes": 180,
+          "date": "2026-10-08",
+          "description": "Valmistelu / suunnittelu",
+          "createdAt": "2026-10-09T06:31:47.844Z"
         }
       ],
       "createdAt": "2026-09-29T06:22:34.628Z"
