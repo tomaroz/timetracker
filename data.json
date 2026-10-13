@@ -33,6 +33,13 @@
           "date": "2026-10-12",
           "description": "Valmistelua ja suunnittelua",
           "createdAt": "2026-10-12T13:04:23.272Z"
+        },
+        {
+          "id": "1791871710683",
+          "minutes": 240,
+          "date": "2026-10-07",
+          "description": "Suunnittelu ja valmistelu",
+          "createdAt": "2026-10-13T06:08:30.683Z"
         }
       ],
       "createdAt": "2026-09-29T06:22:34.628Z"
